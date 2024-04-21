@@ -1,5 +1,7 @@
 import type { MetaFunction } from '@remix-run/node';
-import { Theme, useTheme } from 'remix-themes';
+
+import { Theme } from '~/common/constants';
+import { useTheme } from '~/hooks/use-theme';
 
 export const meta: MetaFunction = () => {
   return [{ title: 'New Remix App' }, { name: 'description', content: 'Welcome to Remix!' }];

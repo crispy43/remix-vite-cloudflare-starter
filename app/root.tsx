@@ -7,21 +7,23 @@ import {
   ScrollRestoration,
   useLoaderData,
 } from '@remix-run/react';
-import { PreventFlashOnWrongTheme, ThemeProvider, useTheme } from 'remix-themes';
 import { resolveAcceptLanguage } from 'resolve-accept-language';
 
-import { themeSessionResolver } from '~/controllers/session.server';
 import globalStyles from '~/styles/global.css?url';
 import resetStyles from '~/styles/reset.css?url';
 import themeStyles from '~/styles/theme.css?url';
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+import { DEFAULT_LANGUAGE, LANGUAGES } from './common/constants';
+import { getThemeSession } from './controllers/session.server';
+import { PreventFlashOnWrongTheme, ThemeProvider, useTheme } from './hooks/use-theme';
+
+export const loader = async ({ request, context }: LoaderFunctionArgs) => {
   const lang = resolveAcceptLanguage(
     request.headers.get('accept-language')!,
-    ['en-US', 'ko-KR'] as const,
-    'ko-KR',
+    LANGUAGES,
+    DEFAULT_LANGUAGE,
   );
-  const { getTheme } = await themeSessionResolver(request);
+  const { getTheme } = await getThemeSession(request, context);
 
   return {
     lang: lang.split('-')[0],

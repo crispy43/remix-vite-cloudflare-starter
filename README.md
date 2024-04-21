@@ -10,7 +10,7 @@
 yarn
 ```
 
-클라우드 플레어 환경 변수를 설정합니다. 아래 커맨드로 .dev.vars.example을 복사하여 .dev.vars 파일을 복사하여 만들어 줍니다.
+클라우드플레어 환경변수를 설정합니다. 아래 커맨드로 .dev.vars.example을 복사하여 .dev.vars 파일을 복사하여 만들어 줍니다.
 ```bash
 cp .dev.vars.example .dev.vars
 ```
@@ -29,8 +29,28 @@ yarn build
 ```
 
 ### 배포 앱 실행
-참고: 클라우드 플레어 배포 환경에서 .dev.vars 파일의 환경 변수는 더 이상 불러오지 않으므로 환경 변수를 직접 추가해야 합니다.
-
 ```bash
 yarn start
+```
+
+## 가이드
+### 환경변수의 사용
+.dev.vars 파일과 클라우드플레어 Pages의 환경변수는 매 요청마다 `context`에 주입됩니다. `process.env.ENV_KEY`와 같은 방법으로 환경변수를 사용할 수 없으므로 아래와 같은 방법으로 사용해야 합니다. 현재 dev 환경과 클라우드플레어 페이지 배포 환경에서 context 객체가 상이한 문제가 있으므로 utils/cloudflare의 `getEnv()`함수를 통해 환경변수를 사용해야 합니다. 클라우드플레어 배포환경에서는 .dev.vars 파일은 사용되지 않으므로 클라우드플레어 대시보드에서 직접 환경변수를 추가하거나 wrangler.toml 파일에 환경변수를 작성해야 합니다.
+
+```typescript
+import { getEnv } from '~/utils/cloudflare';
+
+export const loader = async ({ context }: LoaderFunctionArgs) => {
+  const API_KEY = getEnv(context).API_KEY;
+  /* ... */
+};
+```
+
+환경변수 추가 시, 타입 매치를 위해 load.context.ts 파일에도 함께 추가해줍니다.
+
+```typescript
+// ./load.context.ts
+interface Env {
+  API_KEY: string;
+}
 ```
